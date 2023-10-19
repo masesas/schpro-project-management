@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "195435583732",
+    "project_id": "schpro-project-management",
+    "storage_bucket": "schpro-project-management.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195435583732:android:e5742653021df32c4de6a1",
+        "android_client_info": {
+          "package_name": "com.schpro.project"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC5Z1N-89DIEu1GzFqQq5nyNkN-YsxcwiI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

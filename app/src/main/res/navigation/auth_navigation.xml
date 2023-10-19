@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/auth_navigation"
+    app:startDestination="@id/fragment_login">
+
+    <fragment
+        android:id="@+id/fragment_login"
+        android:name="com.schpro.project.presentation.auth.LoginFragment"
+        android:label="LoginFragment"
+
+        tools:layout="@layout/fragment_login">
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_registrasi"
+        android:name="com.schpro.project.presentation.auth.RegistrasiFragment"
+        android:label="RegistrasiFragment"
+        tools:layout="@layout/fragment_registrasi">
+
+        <action
+            android:id="@+id/action_registrasi_fragment_to_registrasi_success_fragment"
+            app:destination="@id/fragment_regist_success" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_regist_success"
+        android:name="com.schpro.project.presentation.auth.RegistSuccessFragment"
+        android:label="RegistrasiSuccessFragment"
+        tools:layout="@layout/fragment_regist_success">
+
+        <action
+            android:id="@+id/action_registrasi_success_fragment_to_login_fragment"
+            app:destination="@id/fragment_login" />
+    </fragment>
+
+</navigation>

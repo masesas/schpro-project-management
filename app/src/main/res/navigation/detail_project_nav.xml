@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/detail_project_nav"
+    app:startDestination="@id/fragment_detail_project">
+
+    <fragment
+        android:id="@+id/fragment_detail_project"
+        android:name="com.schpro.project.presentation.detailProject.DetailProjectFragment"
+        android:label="DetailProject"
+        tools:layout="@layout/fragment_detail_project">
+        <action
+            android:id="@+id/action_fragment_detail_project_to_fragment_add_project"
+            app:destination="@id/fragment_update_project" />
+
+        <action
+            android:id="@+id/action_fragment_detail_project_to_fragment_detail_sprint"
+            app:destination="@id/fragment_detail_sprint" />
+
+        <!-- just ignore error, this is an bug from Android Studio Giraffe version -->
+        <argument
+            android:name="projectId"
+            android:defaultValue=" "
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_update_project"
+        android:name="com.schpro.project.presentation.detailProject.UpdateProjectFragment"
+        android:label="Update Project"
+        tools:layout="@layout/fragment_add_project">
+
+        <!-- just ignore error, this is an bug from Android Studio Giraffe version -->
+        <argument
+            android:name="project"
+            app:nullable="false"
+            app:argType="com.schpro.project.data.models.Project" />
+
+    </fragment>
+
+    <fragment
+        android:id="@+id/fragment_detail_sprint"
+        android:name="com.schpro.project.presentation.detailProject.DetailSprintFragment"
+        android:label="Detail Sprint"
+        tools:layout="@layout/fragment_detail_sprint">
+
+    </fragment>
+
+</navigation>

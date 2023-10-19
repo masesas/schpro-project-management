@@ -1,0 +1,30 @@
+<resources>
+    <string name="app_name">Schpro Project Management</string>
+
+    <!-- Auth -->
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="username">Username</string>
+    <string name="daftar">Daftar</string>
+    <string name="role">Role</string>
+    <string name="confirmation_password">Confirmation Password</string>
+    <string name="saya_menyetujui_syarat_dan_ketentuan">Saya menyetujui Syarat dan Ketentuan</string>
+    <string name="kamu_berhasil_register">Kamu Berhasil Register</string>
+    <string name="yeay">Yeay!</string>
+    <string name="login_sekarang">Login Sekarang</string>
+    <string-array name="roles">
+        <item>Project Manager</item>
+        <item>Project Team</item>
+    </string-array>
+    <!-- Auth -->
+
+    <string name="backbutton">BackButton</string>
+    <string name="beranda">Beranda</string>
+    <string name="my_project">My Project</string>
+    <string name="profile">Profile</string>
+    <string name="add_project">Add Project</string>
+    <string name="my_task">My Task</string>
+    <string name="to_do">To do</string>
+    <string name="tugas_haru_ini">Tugas Haru ini</string>
+
+</resources>
