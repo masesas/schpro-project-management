@@ -96,12 +96,37 @@
             </com.google.android.material.tabs.TabLayout>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_task"
+                android:id="@+id/rv_task_todo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="@dimen/common_margin"
                 tools:itemCount="3"
                 tools:listitem="@layout/item_sprint_task" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_task_on_going"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/common_margin"
+                android:visibility="gone"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_sprint_task" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_task_done"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/common_margin"
+                android:visibility="gone"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_sprint_task" />
+
+            <ProgressBar
+                android:id="@+id/pb_task"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:visibility="gone" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btn_add_task"

@@ -5,8 +5,10 @@ import com.google.firebase.firestore.Query
 import com.schpro.project.core.FireStoreCollection
 import com.schpro.project.core.FireStoreFields
 import com.schpro.project.core.base.Resource
+import com.schpro.project.data.models.Dashboard
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Roles
+import com.schpro.project.data.models.Status
 import com.schpro.project.data.models.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -78,5 +80,36 @@ class ProjectRepositoryImpl(
         Resource.Success("Project berhasil di update")
     } catch (e: Exception) {
         Resource.Failure(e.message)
+    }
+
+    override suspend fun getProjectsCount(user: User) = callbackFlow {
+        val document = database
+            .collection(FireStoreCollection.PROJECT)
+            .whereEqualTo(FireStoreFields.BY_USER, user.id)
+
+        val snapshotListener = document
+            .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
+            .addSnapshotListener { snapshot, e ->
+                val result = snapshot?.toObjects(Project::class.java)
+                val dashboard = Dashboard()
+                if (result != null) {
+                    dashboard.totalProject = result.size
+                    for (data in result) {
+                        when (data.status) {
+                            Status.OnGoing -> {
+                                dashboard.totalProjectOnGoing += 1
+                            }
+
+                            Status.Complete -> dashboard.totalProjectComplete += 1
+                            else -> {}
+                        }
+                    }
+                }
+                trySend(Resource.Success(dashboard))
+            }
+
+        awaitClose {
+            snapshotListener.remove()
+        }
     }
 }

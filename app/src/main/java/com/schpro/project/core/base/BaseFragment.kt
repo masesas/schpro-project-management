@@ -88,6 +88,10 @@ abstract class BaseFragment<VB : ViewBinding, VM : BaseViewModel>(private val bi
         (activity as BaseActivity).bottomNavContainer().visibility = View.GONE
     }
 
+    internal fun showProgressDialog() = (activity as BaseActivity).showProgressDialog()
+
+    internal fun hideProgressDialog() = (activity as BaseActivity).hideProgressDialog()
+
     open fun backPressed(enabled: Boolean = false, action: (() -> Unit)? = null) {
         if (activity != null) {
             requireActivity()

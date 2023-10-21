@@ -12,10 +12,13 @@ object FireStoreCollection {
 
 object FireStoreFields {
     const val PROJECT_ID = "projectId"
+    const val SPRINT_ID = "sprintId"
+    const val STATUS = "status"
     const val SPRINT = "sprints"
     const val MEMBERS = "members"
     const val USER_ID = "userId"
     const val CREATED_DATE = "createdDate"
+    const val BY_USER = "byUser.id"
 }
 
 object FirebaseStorageConstants {

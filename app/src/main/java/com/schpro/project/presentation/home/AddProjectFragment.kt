@@ -2,7 +2,6 @@ package com.schpro.project.presentation.home
 
 import android.view.View
 import android.widget.TextView
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.schpro.project.R
 import com.schpro.project.core.base.BaseFragment
@@ -15,21 +14,16 @@ import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.User
 import com.schpro.project.databinding.FragmentAddProjectBinding
 import com.schpro.project.presentation.home.viewModel.AddProjectViewModel
-import com.schpro.project.presentation.home.viewModel.HomeViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class AddProjectFragment :
     BaseFragment<FragmentAddProjectBinding, AddProjectViewModel>(FragmentAddProjectBinding::inflate) {
 
-    private val homeViewModel: HomeViewModel by activityViewModels()
-
+    private var userSession = User()
     private var dropdownMember = mutableListOf<DropdownModel<User>>()
-
     private var loadedAnggota = mutableListOf<User>()
-
     private var selectedAnggota = mutableListOf<User>()
-
     private var projectParams = Project()
 
     private val selectedAnggotaAdapter by lazy {
@@ -62,13 +56,15 @@ class AddProjectFragment :
     override fun getViewModelClass(): Class<AddProjectViewModel> = AddProjectViewModel::class.java
 
     private fun observe() {
-        viewModel.getUserProjectTeam()
-
-        homeViewModel.getSession { user ->
+        viewModel.getSession { user ->
             if (user != null) {
                 projectParams.apply {
                     byUser = user
                 }
+
+                viewModel.getUserProjectTeam()
+            } else {
+                toast("Login tidak valid, silahkan logout dan login kembali")
             }
         }
 
@@ -77,7 +73,7 @@ class AddProjectFragment :
                 when (it) {
                     is UiState.Loading -> showProgress()
                     is UiState.Success -> {
-                        if(projectParams.id.isEmpty()){
+                        if (projectParams.id.isEmpty()) {
                             clearForm()
                         }
                         hideProgress()

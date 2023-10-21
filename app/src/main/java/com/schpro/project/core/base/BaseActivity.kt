@@ -11,12 +11,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
 import com.schpro.project.R
 import com.schpro.project.core.extension.changeStatusBarColor
+import com.schpro.project.core.widget.LoadingDialog
 import com.schpro.project.databinding.ActivityLayoutBinding
 
 abstract class BaseActivity : AppCompatActivity() {
     private lateinit var _navController: NavController
     private lateinit var _binding: ActivityLayoutBinding
     private lateinit var _navHost: NavHostFragment
+
+    private val loadingDialog: LoadingDialog by lazy {
+        LoadingDialog(this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,4 +127,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
         return canBack
     }
+
+    fun showProgressDialog() = loadingDialog.show()
+
+    fun hideProgressDialog() = loadingDialog.dismiss()
 }

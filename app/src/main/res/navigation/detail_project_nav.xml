@@ -50,6 +50,10 @@
             app:nullable="false"
             app:argType="com.schpro.project.data.models.Sprint" />
 
+        <argument
+            android:name="members"
+            app:argType="com.schpro.project.data.models.User[]" />
+
     </fragment>
 
 </navigation>

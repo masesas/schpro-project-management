@@ -33,7 +33,7 @@ class DetailProjectFragment :
     BaseFragment<FragmentDetailProjectBinding, DetailProjectViewModel>(FragmentDetailProjectBinding::inflate) {
 
     private val args: DetailProjectFragmentArgs by navArgs()
-
+    private lateinit var userSession: User
     private val teams = mutableListOf<User>()
     private var sprints = mutableListOf<Sprint>()
 
@@ -62,14 +62,24 @@ class DetailProjectFragment :
             bind = { item, holder, _, _ ->
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_title).text = item.title
+                    findViewById<View>(R.id.img_delete).visibility =
+                        if (userSession.role == Roles.ProjectManager)
+                            View.VISIBLE
+                        else
+                            View.GONE
+
                     findViewById<View>(R.id.img_delete).setOnClickListener {
                         viewModel.deleteSprint(item)
                     }
 
                     setOnClickListener {
+                        val projectTeamOnly = teams.filter {
+                            it.role == Roles.ProjectTeam
+                        }
+
                         findNavController().navigate(
                             R.id.fragment_detail_sprint,
-                            DetailSprintFragmentArgs.Builder(item)
+                            DetailSprintFragmentArgs.Builder(item, projectTeamOnly.toTypedArray())
                                 .build()
                                 .toBundle()
                         )
@@ -111,22 +121,22 @@ class DetailProjectFragment :
         viewModel.getSession { user ->
             viewModel.getSprintList(args.projectId)
             viewModel.getDetailProject(args.projectId)
+            userSession = user!!
         }
 
         viewModel.detailProject.observe(viewLifecycleOwner) { detailProject ->
             if (detailProject != null) {
                 when (detailProject) {
-                    is UiState.Loading -> showProgress()
+                    is UiState.Loading -> {}
                     is UiState.Success -> {
-                        hideProgress()
                         teams.clear()
                         val data = detailProject.data
 
                         binding.tvTitle.text = data.title
                         binding.tvDesc.text = data.description
                         binding.tvDueDate.text = data.dueDate
-                        binding.tvPercentage.text = "0%"
-                        binding.progress.progress = 0
+                        binding.progressProject.tvPercentage.text = "0%"
+                        binding.progressProject.progress.progress = 0
 
                         data.byUser?.let {
                             teams.add(0, it)
@@ -153,7 +163,6 @@ class DetailProjectFragment :
                     }
 
                     is UiState.Failure -> {
-                        hideProgress()
                         toast("Fail to load project")
                     }
                 }

@@ -11,6 +11,7 @@ import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.annotation.ColorInt
+import androidx.annotation.IntegerRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
@@ -83,7 +84,7 @@ fun View.isEventWithinViewBounds(event: MotionEvent): Boolean {
 }
 
 fun Menu.setIconColor(context: Context, menuId: Int, color: Int = R.color.white) {
-    val editAction = findItem(R.id.update_project)
+    val editAction = findItem(menuId)
     editAction.icon?.run {
         val icon = DrawableCompat.wrap(this)
         val colorSelector = ResourcesCompat.getColorStateList(

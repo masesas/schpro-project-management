@@ -31,6 +31,7 @@ class AuthActivity : BaseActivity() {
 
     override fun initViews() {
         incomingIntent()
+        toolbar(show = false)
     }
 
     private fun incomingIntent() {
@@ -38,7 +39,6 @@ class AuthActivity : BaseActivity() {
             when (initial) {
                 Nav.Login -> navController.navigate(R.id.fragment_login)
                 Nav.Registrasi -> navController.navigate(R.id.fragment_registrasi)
-
             }
         }
     }

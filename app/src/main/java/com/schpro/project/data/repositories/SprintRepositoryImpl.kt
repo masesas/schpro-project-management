@@ -22,7 +22,6 @@ class SprintRepositoryImpl(
             .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, e ->
                 val result = if (snapshot != null) {
-                    println("result sprint >>> ${snapshot.toObjects(Sprint::class.java)}")
                     Resource.Success(snapshot.toObjects(Sprint::class.java))
                 } else {
                     Resource.Failure(e?.localizedMessage)

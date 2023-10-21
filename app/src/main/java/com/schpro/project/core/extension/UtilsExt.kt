@@ -17,3 +17,8 @@ fun <T> Resource<T>.toState(): UiState<T> = when (this) {
     is Resource.Success -> UiState.Success(data)
     is Resource.Failure -> UiState.Failure(message)
 }
+
+fun <T> Resource<T>.toData(): T? = when (this) {
+    is Resource.Success -> data
+    is Resource.Failure -> null
+}

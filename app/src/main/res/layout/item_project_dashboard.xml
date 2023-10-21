@@ -3,11 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="5dp"
     android:background="@color/white"
     android:gravity="center"
     android:orientation="horizontal"
-    android:padding="15dp">
+    android:layout_marginBottom="5dp"
+    android:padding="@dimen/big_margin">
 
     <ImageView
         android:layout_width="17dp"
@@ -22,23 +22,18 @@
 
         <TextView
             android:id="@+id/tv_title"
+            android:fontFamily="@font/rubik_semi_bold"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:fontFamily="@font/rubik_semi_bold"
             android:includeFontPadding="false"
             android:textColor="@color/black"
             android:textSize="14sp"
             android:textStyle="bold"
             tools:text="Slicing Landing Page" />
 
-        <TextView
-            android:id="@+id/tv_status"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/grey_text"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            tools:text="@string/to_do" />
+        <include
+            android:id="@+id/progress_project"
+            layout="@layout/progress_project" />
 
     </LinearLayout>
 

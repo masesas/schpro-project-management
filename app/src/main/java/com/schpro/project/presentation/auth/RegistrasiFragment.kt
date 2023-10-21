@@ -23,6 +23,7 @@ class RegistrasiFragment :
         components()
         observer()
         debugMode()
+        backPressed(true)
     }
 
     override fun getViewModelClass(): Class<RegistrasiViewModel> = RegistrasiViewModel::class.java
@@ -31,16 +32,18 @@ class RegistrasiFragment :
         this.viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
                 is UiState.Loading -> {
-                    showProgress()
+                    showProgressDialog()
                 }
 
                 is UiState.Success -> {
+                    hideProgressDialog()
                     Navigation.findNavController(binding.root).popBackStack()
                     Navigation.findNavController(binding.root)
                         .navigate(R.id.fragment_regist_success)
                 }
 
                 is UiState.Failure -> {
+                    hideProgressDialog()
                     state.message?.run {
                         notify(this)
                     }

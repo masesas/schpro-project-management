@@ -24,17 +24,17 @@ class LoginFragment :
     override fun getViewModelClass(): Class<LoginViewModel> = LoginViewModel::class.java
 
     private fun components() {
-        binding?.imgBack?.setOnClickListener {
+        binding.imgBack.setOnClickListener {
             requireActivity().finish()
         }
 
-        binding?.btnMasuk?.setOnClickListener {
+        binding.btnMasuk.setOnClickListener {
             if (validation()) {
                 viewModel
                     .login(
                         LoginRequest(
-                            binding!!.etEmail.text.toString(),
-                            binding!!.etPassword.text.toString()
+                            binding.etEmail.text.toString(),
+                            binding.etPassword.text.toString()
                         )
                     )
             }
@@ -44,12 +44,14 @@ class LoginFragment :
     private fun observer() {
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
-                is UiState.Loading -> showProgress()
+                is UiState.Loading -> showProgressDialog()
                 is UiState.Success -> {
+                    hideProgressDialog()
                     HomeActivity.callingIntent(requireContext())
                 }
 
                 is UiState.Failure -> {
+                    hideProgressDialog()
                     state.message?.run {
                         notify(this)
                     }

@@ -89,9 +89,7 @@ class SprintDialog constructor(
         }
     }
 
-    fun isShowing() = dialog.isShowing
-
-    fun dismiss() = if (isShowing()) dialog.dismiss() else null
+    fun dismiss() = if (dialog.isShowing) dialog.dismiss() else null
 
     fun show(){
         binding.etTitle.setText("")
