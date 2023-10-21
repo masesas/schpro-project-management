@@ -23,12 +23,6 @@ abstract class BaseRecyclerViewAdapter<T : Any>(
         val root = LayoutInflater.from(parent.context).inflate(viewType, parent, false)
         return BaseViewHolder(root as ViewGroup)
     }
-
-    override fun submitList(list: MutableList<T>?) {
-        val a = currentList
-        val b = list
-        super.submitList(list)
-    }
 }
 
 class BaseViewHolder(container: ViewGroup) : RecyclerView.ViewHolder(container)

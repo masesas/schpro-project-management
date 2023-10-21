@@ -10,6 +10,14 @@ object FireStoreCollection {
     const val TASK = "task"
 }
 
+object FireStoreFields {
+    const val PROJECT_ID = "projectId"
+    const val SPRINT = "sprints"
+    const val MEMBERS = "members"
+    const val USER_ID = "userId"
+    const val CREATED_DATE = "createdDate"
+}
+
 object FirebaseStorageConstants {
     const val ROOT_DIR = "app"
     const val USER = "user"

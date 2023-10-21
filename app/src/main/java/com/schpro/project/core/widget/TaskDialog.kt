@@ -5,9 +5,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.schpro.project.R
 import com.schpro.project.core.base.BaseRecyclerViewAdapter
+import com.schpro.project.core.extension.toast
+import com.schpro.project.core.widget.adapter.DropdownModel
+import com.schpro.project.data.models.Task
 import com.schpro.project.data.models.User
 import com.schpro.project.databinding.DialogTaskBinding
 
@@ -15,32 +19,17 @@ class TaskDialog constructor(
     private val context: Context
 ) {
 
-    private lateinit var binding: DialogTaskBinding
     private lateinit var dialog: AlertDialog
-    private lateinit var anggotaAdapter: BaseRecyclerViewAdapter<User>
 
-    private var anggotaList = mutableListOf<User>()
+    private var dropdownMember = mutableListOf<DropdownModel<User>>()
+    private var selectedAnggota = mutableListOf<User>()
 
-    init {
-        initDialog()
-        initData()
+    private val binding: DialogTaskBinding by lazy {
+        DialogTaskBinding.inflate(LayoutInflater.from(context))
     }
 
-    private fun initDialog() {
-        binding = DialogTaskBinding.inflate(LayoutInflater.from(context))
-        val dialogBuilder = MaterialAlertDialogBuilder(context, R.style.TransparentDialog)
-        dialogBuilder.setView(binding.root)
-        dialog = dialogBuilder.create()
-
-        binding.imgClose.setOnClickListener {
-            dialog.dismiss()
-        }
-
-        rvAnggota()
-    }
-
-    private fun rvAnggota() {
-        anggotaAdapter = object : BaseRecyclerViewAdapter<User>(
+    private val selectedAnggotaAdapter by lazy {
+        object : BaseRecyclerViewAdapter<User>(
             R.layout.item_anggota,
             bind = { item, holder, count, adapter ->
                 with(holder.itemView) {
@@ -50,33 +39,97 @@ class TaskDialog constructor(
                     findViewById<View>(R.id.img_delete).visibility = View.VISIBLE
 
                     findViewById<View>(R.id.img_delete).setOnClickListener {
-                        anggotaList.remove(item)
-                        adapter.submitList(anggotaList)
+                        selectedAnggota.remove(item)
+                        adapter.submitList(selectedAnggota)
                         adapter.notifyDataSetChanged()
                     }
                 }
             }
         ) {}.apply {
-            submitList(anggotaList)
+            submitList(selectedAnggota)
+        }
+    }
+
+    init {
+        initDialog()
+    }
+
+    private fun initDialog() {
+        val dialogBuilder = MaterialAlertDialogBuilder(context, R.style.TransparentDialog)
+        dialogBuilder.setView(binding.root)
+        dialog = dialogBuilder.create()
+
+        binding.imgClose.setOnClickListener {
+            dialog.dismiss()
         }
 
+        binding.chooseMember.setOnClickListener {
+            DropdownBottomSheet(
+                context,
+                dropdownMember
+            ) {
+                if (!selectedAnggota.contains(it)) {
+                    selectedAnggota.add(it)
+                    selectedAnggotaAdapter.submitList(selectedAnggota)
+                    selectedAnggotaAdapter.notifyDataSetChanged()
+                } else {
+                    context.toast("Anggota telah ditambahkan")
+                }
+            }
+                .setTitle("Pilih Anggota")
+                .showActionButton(false)
+                .show()
+        }
+
+        rvAnggota()
+    }
+
+    private fun rvAnggota() {
         binding.rvAnggota.apply {
-            adapter = anggotaAdapter
+            layoutManager = LinearLayoutManager(context)
+            adapter = selectedAnggotaAdapter
         }
     }
 
-    private fun initData() {
+    fun setTaskData(task: Task) {
+        selectedAnggota.clear()
+        selectedAnggota.addAll(task.members)
 
+        binding.etTitle.setText(task.title)
+        binding.etDeskripsi.setText(task.description)
+        binding.etTenggatTask.setText(task.tenggatTask)
     }
 
-    fun setButtonAction(title: String, action: () -> Unit) {
+    fun setAnggotaList(anggota: List<User>) {
+        dropdownMember = anggota.map {
+            DropdownModel(
+                it,
+                valueBuilder = { user -> user.username },
+                subTitleBuilder = { "" }
+            )
+        }.toMutableList()
+    }
+
+    fun setButtonAction(title: String, action: (AlertDialog, Task) -> Unit) {
         binding.btnDone.text = title
         binding.btnDone.setOnClickListener {
-            action.invoke()
+            action.invoke(
+                dialog, Task(
+                    title = binding.etTitle.text.toString(),
+                    description = binding.etDeskripsi.text.toString(),
+                    tenggatTask = binding.etTenggatTask.text.toString(),
+                    members = selectedAnggota
+                )
+            )
         }
     }
 
     fun show() {
+        binding.etTitle.setText("")
+        binding.etTenggatTask.setText("")
+        binding.etDeskripsi.setText("")
+        selectedAnggota.clear()
+
         dialog.show()
     }
 }

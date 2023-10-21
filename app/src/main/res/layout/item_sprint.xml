@@ -3,21 +3,23 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:layout_marginBottom="5dp"
     android:background="@color/white"
     android:gravity="center"
-    android:layout_marginBottom="5dp"
     android:orientation="horizontal"
     android:padding="@dimen/common_margin">
 
     <ImageView
         android:layout_width="17dp"
         android:layout_height="17dp"
+        android:contentDescription="arrow"
         android:src="@drawable/ic_arrow_right" />
 
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/common_margin"
+        android:layout_weight="1"
         android:orientation="vertical">
 
         <TextView
@@ -32,5 +34,12 @@
             tools:text="Sprint (01/05/2023-12/05/2023)" />
 
     </LinearLayout>
+
+    <ImageView
+        android:id="@+id/img_delete"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:contentDescription="delete"
+        android:src="@drawable/ic_trash" />
 
 </LinearLayout>

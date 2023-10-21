@@ -10,6 +10,7 @@ import com.schpro.project.data.models.Project
 import com.schpro.project.data.repositories.ProjectRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -24,6 +25,9 @@ class UpdateProjectViewModel @Inject constructor(
     fun updateProject(project: Project) {
         _updateProject.value = UiState.Loading
         viewModelScope.launch {
+            getSession { user -> project.updatedUser = user }
+            project.updatedDate = Date()
+
             projectRepository.updateProject(project).run {
                 when (this) {
                     is Resource.Success -> _updateProject.value = UiState.Success(data)

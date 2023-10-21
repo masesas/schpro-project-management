@@ -44,7 +44,7 @@ class DetailProjectActivity : BaseActivity() {
 
                 R.id.fragment_update_project -> toolbar(
                     true,
-                    "Add Project",
+                    "Update Project",
                     centered = false,
                     showBackButton = true
                 )

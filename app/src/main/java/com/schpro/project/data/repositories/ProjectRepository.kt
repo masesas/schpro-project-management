@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface ProjectRepository {
     suspend fun getProjects(user: User): Flow<Resource<List<Project>>>
 
-    suspend fun getProjectById(id: String): Resource<Project>
+    suspend fun getProjectById(id: String): Flow<Resource<Project>>
 
     suspend fun saveProject(project: Project): Resource<Pair<Project, String>>
 

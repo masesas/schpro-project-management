@@ -67,8 +67,7 @@ class AddProjectFragment :
         homeViewModel.getSession { user ->
             if (user != null) {
                 projectParams.apply {
-                    userId = user.id
-                    projectManager = user
+                    byUser = user
                 }
             }
         }

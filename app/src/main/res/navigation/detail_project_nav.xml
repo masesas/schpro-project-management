@@ -45,6 +45,11 @@
         android:label="Detail Sprint"
         tools:layout="@layout/fragment_detail_sprint">
 
+        <argument
+            android:name="sprint"
+            app:nullable="false"
+            app:argType="com.schpro.project.data.models.Sprint" />
+
     </fragment>
 
 </navigation>

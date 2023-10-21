@@ -92,7 +92,6 @@ dependencies {
     //Gson
     implementation("com.google.code.gson:gson:2.9.0")
 
-    // widget
     implementation("com.github.fsbarata.kotlin-functional:base:1.1.2")
     implementation("com.jakewharton.rxbinding4:rxbinding:4.0.0")
     implementation("io.reactivex.rxjava3:rxjava:3.0.12")

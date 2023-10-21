@@ -5,18 +5,18 @@ import com.schpro.project.R
 import com.schpro.project.core.base.BaseFragment
 import com.schpro.project.data.models.Roles
 import com.schpro.project.databinding.FragmentDashboardBinding
-import com.schpro.project.presentation.home.viewModel.HomeViewModel
+import com.schpro.project.presentation.home.viewModel.DashboardViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class DashboardFragment :
-    BaseFragment<FragmentDashboardBinding, HomeViewModel>(FragmentDashboardBinding::inflate) {
+    BaseFragment<FragmentDashboardBinding, DashboardViewModel>(FragmentDashboardBinding::inflate) {
 
     override fun initViews() {
         observer()
     }
 
-    override fun getViewModelClass(): Class<HomeViewModel> = HomeViewModel::class.java
+    override fun getViewModelClass()= DashboardViewModel::class.java
 
     @SuppressLint("SetTextI18n")
     private fun observer() {
@@ -26,11 +26,12 @@ class DashboardFragment :
                 binding.tvHi.text = "Hi, ${user.username} ${user.role.optionalName}"
 
                 if (role == Roles.ProjectManager) {
+                    binding.tvName.text = "My Project"
                     binding.containerCount.tvTitleCount1.text = "Total Project"
                     binding.containerCount.tvTitleCount3.text = "Complete"
                     binding.containerCount.imgCount2.setImageResource(R.drawable.ic_on_going_manager)
                 } else {
-
+                    binding.tvName.text = "My Task"
                 }
             }
         }

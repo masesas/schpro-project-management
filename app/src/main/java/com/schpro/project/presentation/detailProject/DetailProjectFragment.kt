@@ -1,5 +1,6 @@
 package com.schpro.project.presentation.detailProject
 
+import android.annotation.SuppressLint
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
@@ -17,7 +18,7 @@ import com.schpro.project.core.base.BaseRecyclerViewAdapter
 import com.schpro.project.core.base.UiState
 import com.schpro.project.core.extension.setIconColor
 import com.schpro.project.core.extension.toast
-import com.schpro.project.core.widget.TaskDialog
+import com.schpro.project.core.widget.SprintDialog
 import com.schpro.project.core.widget.confirmationDialog
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Roles
@@ -31,10 +32,14 @@ import dagger.hilt.android.AndroidEntryPoint
 class DetailProjectFragment :
     BaseFragment<FragmentDetailProjectBinding, DetailProjectViewModel>(FragmentDetailProjectBinding::inflate) {
 
-    val args: DetailProjectFragmentArgs by navArgs()
+    private val args: DetailProjectFragmentArgs by navArgs()
 
     private val teams = mutableListOf<User>()
-    private val sprints = mutableListOf<Sprint>()
+    private var sprints = mutableListOf<Sprint>()
+
+    private val menuHost: MenuHost by lazy {
+        requireActivity()
+    }
 
     private val teamAdapter by lazy {
         object : BaseRecyclerViewAdapter<User>(
@@ -48,9 +53,7 @@ class DetailProjectFragment :
                     findViewById<TextView>(R.id.tv_role).text = item.role.optionalName
                 }
             }
-        ) {}.apply {
-            submitList(teams)
-        }
+        ) {}
     }
 
     private val sprintAdapter by lazy {
@@ -59,10 +62,39 @@ class DetailProjectFragment :
             bind = { item, holder, _, _ ->
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_title).text = item.title
+                    findViewById<View>(R.id.img_delete).setOnClickListener {
+                        viewModel.deleteSprint(item)
+                    }
+
+                    setOnClickListener {
+                        findNavController().navigate(
+                            R.id.fragment_detail_sprint,
+                            DetailSprintFragmentArgs.Builder(item)
+                                .build()
+                                .toBundle()
+                        )
+                    }
                 }
             }
-        ) {}.apply {
-            submitList(sprints)
+        ) {}
+    }
+
+    private val sprintDialog: SprintDialog by lazy {
+        SprintDialog(requireContext(), parentFragmentManager).apply {
+            setTitle("Add Sprint")
+            setButtonSave { dialog, name, rangeDate ->
+                if (name.isEmpty() || rangeDate.isEmpty()) {
+                    toast("judul dan tanggal harus di isi")
+                    return@setButtonSave
+                }
+
+                val sprint = Sprint().apply {
+                    title = name
+                    date = rangeDate
+                }
+
+                viewModel.saveSprint(sprint)
+            }
         }
     }
 
@@ -74,17 +106,21 @@ class DetailProjectFragment :
 
     override fun getViewModelClass() = DetailProjectViewModel::class.java
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun observe() {
-        viewModel.getDetailProject(args.projectId)
+        viewModel.getSession { user ->
+            viewModel.getSprintList(args.projectId)
+            viewModel.getDetailProject(args.projectId)
+        }
+
         viewModel.detailProject.observe(viewLifecycleOwner) { detailProject ->
             if (detailProject != null) {
                 when (detailProject) {
                     is UiState.Loading -> showProgress()
                     is UiState.Success -> {
                         hideProgress()
-                        val data = detailProject.data
                         teams.clear()
-                        sprints.clear()
+                        val data = detailProject.data
 
                         binding.tvTitle.text = data.title
                         binding.tvDesc.text = data.description
@@ -92,26 +128,19 @@ class DetailProjectFragment :
                         binding.tvPercentage.text = "0%"
                         binding.progress.progress = 0
 
-                        data.projectManager?.let {
+                        data.byUser?.let {
                             teams.add(0, it)
                         }
                         teams.addAll(data.members)
-                        sprints.addAll(data.sprints)
 
                         teamAdapter.submitList(teams.take(5).toMutableList())
                         teamAdapter.notifyDataSetChanged()
 
-                        sprintAdapter.submitList(sprints)
-                        sprintAdapter.notifyDataSetChanged()
-
                         binding.tvViewAllTeams.visibility =
                             if (teams.size > 5) View.VISIBLE else View.GONE
-                        binding.tvEmptySprint.visibility =
-                            if (sprints.isEmpty()) View.VISIBLE else View.GONE
 
                         viewModel.getSession { user ->
                             if (user != null) {
-                                val menuHost: MenuHost = requireActivity()
                                 if (user.role == Roles.ProjectManager) {
                                     binding.btnAddSprint.visibility = View.VISIBLE
                                     menuHost.managerMenu(data)
@@ -132,16 +161,60 @@ class DetailProjectFragment :
                 toast("Fail to load project")
             }
         }
+
+        viewModel.sprintList.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is UiState.Loading -> {
+                    binding.pbSprint.visibility = View.VISIBLE
+                    binding.tvEmptySprint.visibility = View.GONE
+                }
+
+                is UiState.Failure -> {
+                    binding.pbSprint.visibility = View.GONE
+                    binding.tvEmptySprint.visibility = View.VISIBLE
+                    //toast(state.message)
+                }
+
+                is UiState.Success -> {
+                    binding.pbSprint.visibility = View.GONE
+                    binding.tvEmptySprint.visibility = View.GONE
+
+                    sprints = state.data.toMutableList()
+                    sprintAdapter.submitList(sprints)
+                    sprintAdapter.notifyDataSetChanged()
+                }
+            }
+        }
+
+        viewModel.saveSprint.observe(viewLifecycleOwner) { state ->
+            state?.run {
+                when (this) {
+                    is UiState.Loading -> showProgress()
+                    is UiState.Failure -> {
+                        hideProgress()
+                        toast(message)
+                    }
+
+                    is UiState.Success -> {
+                        hideProgress()
+                        toast(data)
+                        sprintDialog.dismiss()
+                    }
+                }
+            }
+        }
     }
 
     private fun components() {
-        val taskDialog = TaskDialog(requireContext())
-        taskDialog.setButtonAction("Done") {
-            toast("done")
+        binding.rvTeam.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = teamAdapter
         }
 
-        rvTeams()
-        rvSprints()
+        binding.rvSprint.apply {
+            layoutManager = LinearLayoutManager(requireContext())
+            adapter = sprintAdapter
+        }
 
         binding.tvViewAllTeams.setOnClickListener {
             teamAdapter.submitList(teams)
@@ -149,24 +222,8 @@ class DetailProjectFragment :
         }
 
         binding.btnAddSprint.setOnClickListener {
-            confirmationDialog(
-                requireContext(),
-                actionOk = { dialog ->
-                    toast("ok")
-                    dialog.dismiss()
-                }
-            )
+            sprintDialog.show()
         }
-    }
-
-    private fun rvTeams() = binding.rvTeam.apply {
-        layoutManager = LinearLayoutManager(requireContext())
-        adapter = teamAdapter
-    }
-
-    private fun rvSprints() = binding.rvSprint.apply {
-        layoutManager = LinearLayoutManager(requireContext())
-        adapter = sprintAdapter
     }
 
     private fun MenuHost.managerMenu(project: Project) {
@@ -175,6 +232,7 @@ class DetailProjectFragment :
                 menu: Menu,
                 menuInflater: MenuInflater
             ) {
+                menu.clear()
                 menuInflater.inflate(R.menu.manager_project_menu, menu)
                 menu.setIconColor(requireContext(), R.id.update_project)
             }
@@ -201,13 +259,19 @@ class DetailProjectFragment :
                 menu: Menu,
                 menuInflater: MenuInflater
             ) {
+                menu.clear()
                 menuInflater.inflate(R.menu.team_project_menu, menu)
                 menu.setIconColor(requireContext(), R.id.exit_project)
             }
 
             override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
                 if (menuItem.itemId == R.id.exit_project) {
-                    toast("exit project")
+                    confirmationDialog(
+                        requireContext(),
+                        actionOk = { dialog ->
+                            dialog.dismiss()
+                        }
+                    )
                 }
                 return true
             }

@@ -20,7 +20,6 @@ open class BaseViewModel @Inject constructor() : ViewModel() {
     lateinit var userRepository: UserRepository
 
     private val _usersProjectTeam = MutableLiveData<List<User>>()
-
     val usersProjectTeam: LiveData<List<User>>
         get() = _usersProjectTeam
 

@@ -13,8 +13,8 @@ import kotlinx.coroutines.flow.callbackFlow
 
 class UserRepositoryImpl(
     val database: FirebaseFirestore,
-    val appSharePrefs: SharedPreferences,
-    val gson: Gson
+    private val appSharePrefs: SharedPreferences,
+    private val gson: Gson
 ) : UserRepository {
     override fun updateUserInfo(user: User, result: (Resource<String>) -> Unit) {
         val document = database.collection(FireStoreCollection.USER).document(user.id)

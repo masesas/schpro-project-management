@@ -2,7 +2,6 @@ package com.schpro.project.presentation.home
 
 import android.view.View
 import android.widget.TextView
-import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.schpro.project.R
 import com.schpro.project.core.base.BaseFragment
@@ -12,7 +11,6 @@ import com.schpro.project.core.extension.toast
 import com.schpro.project.data.models.Project
 import com.schpro.project.databinding.FragmentMyProjectBinding
 import com.schpro.project.presentation.detailProject.DetailProjectActivity
-import com.schpro.project.presentation.home.viewModel.HomeViewModel
 import com.schpro.project.presentation.home.viewModel.MyProjectViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -20,7 +18,6 @@ import dagger.hilt.android.AndroidEntryPoint
 class MyProjectFragment :
     BaseFragment<FragmentMyProjectBinding, MyProjectViewModel>(FragmentMyProjectBinding::inflate) {
 
-    private val homeViewModel: HomeViewModel by activityViewModels()
     private var projectList = mutableListOf<Project>()
     private val projectAdapter by lazy {
         object : BaseRecyclerViewAdapter<Project>(
@@ -29,7 +26,7 @@ class MyProjectFragment :
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_title).text = item.title
                     findViewById<TextView>(R.id.tv_pm_name).text =
-                        item.projectManager?.username ?: ""
+                        item.byUser?.username ?: ""
                     findViewById<TextView>(R.id.tv_project_due).text = item.dueDate
 
                     findViewById<View>(R.id.btn_detail).setOnClickListener {
@@ -59,7 +56,7 @@ class MyProjectFragment :
     }
 
     private fun observe() {
-        homeViewModel.getSession { user ->
+        viewModel.getSession { user ->
             if (user != null) {
                 viewModel.getProjectList(user)
             }
@@ -73,6 +70,7 @@ class MyProjectFragment :
 
                 is UiState.Success -> {
                     hideProgress()
+
                     projectList = state.data.toMutableList()
                     projectAdapter.submitList(projectList)
                     projectAdapter.notifyDataSetChanged()

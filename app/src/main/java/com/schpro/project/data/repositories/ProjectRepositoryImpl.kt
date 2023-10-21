@@ -3,6 +3,7 @@ package com.schpro.project.data.repositories
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.Query
 import com.schpro.project.core.FireStoreCollection
+import com.schpro.project.core.FireStoreFields
 import com.schpro.project.core.base.Resource
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Roles
@@ -12,18 +13,18 @@ import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.tasks.await
 
 class ProjectRepositoryImpl(
-    val database: FirebaseFirestore
+    private val database: FirebaseFirestore
 ) : ProjectRepository {
     override suspend fun getProjects(user: User) = callbackFlow {
         val document = database.collection(FireStoreCollection.PROJECT)
 
         when (user.role) {
             Roles.ProjectTeam -> {
-                document.whereArrayContains("members", user)
+                document.whereArrayContains(FireStoreFields.MEMBERS, user)
             }
 
             Roles.ProjectManager -> {
-                document.whereEqualTo("userId", user.id)
+                document.whereEqualTo(FireStoreFields.USER_ID, user.id)
             }
         }
 
@@ -43,21 +44,22 @@ class ProjectRepositoryImpl(
         }
     }
 
-    override suspend fun getProjectById(id: String) = try {
-        val document = database
-            .collection(FireStoreCollection.PROJECT)
-            .document(id)
-            .get()
-            .await()
+    override suspend fun getProjectById(id: String) = callbackFlow {
+        val document = database.collection(FireStoreCollection.PROJECT).document(id)
 
-        if (document == null) {
-            Resource.Failure("Gagal meload project");
-        } else {
-            Resource.Success(document.toObject(Project::class.java)!!)
+        val snapshotListener = document.addSnapshotListener { snapshot, e ->
+            val result = if (snapshot != null) {
+                Resource.Success(snapshot.toObject(Project::class.java)!!)
+            } else {
+                Resource.Failure(e?.localizedMessage)
+            }
+
+            trySend(result)
         }
 
-    } catch (e: Exception) {
-        Resource.Failure(e.message);
+        awaitClose {
+            snapshotListener.remove()
+        }
     }
 
     override suspend fun saveProject(project: Project) = try {

@@ -8,20 +8,25 @@ import java.util.Date
 @Parcelize
 data class Project(
     var id: String = "",
-    var userId: String = "",
     var title: String = "",
     var members: List<User> = arrayListOf(),
     var dueDate: String = "",
-    var status: Status = Status.Todo,
     var description: String = "",
-    var projectManager: User? = null,
-    val sprints: MutableList<Sprint> = arrayListOf(),
+    var byUser: User? = null,
+    var updatedUser: User? = null,
     @ServerTimestamp
-    val createdDate: Date = Date()
+    val createdDate: Date = Date(),
+    var updatedDate: Date? = null,
 ) : Parcelable {
     enum class Status(val optionalName: String) {
         Todo("To do"),
         OnGoing("On Going"),
         Done("Done")
     }
+
+    override fun toString(): String {
+        return "Project(id='$id', title='$title', members=$members, dueDate='$dueDate', description='$description', byUser=$byUser, updatedUser=$updatedUser, createdDate=$createdDate, updatedDate=$updatedDate)"
+    }
+
+
 }

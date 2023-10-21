@@ -7,14 +7,13 @@ import java.util.Date
 
 @Parcelize
 data class Sprint(
-    val id: String,
-    val projectId: String,
-    val title: String,
-    val fromDate: Date,
-    val toDate: Date,
-    val todos: MutableList<Task> = arrayListOf(),
-    val onGoing: MutableList<Task> = arrayListOf(),
-    val done: MutableList<Task> = arrayListOf(),
+    var id: String = "",
+    var projectId: String = "",
+    var title: String = "",
+    var date: String = "",
+    var byUser: User? = null,
+    var updatedUser: User? = null,
     @ServerTimestamp
-    val createdDate: Date = Date()
-) : Parcelable
+    val createdDate: Date = Date(),
+    var updatedDate: Date? = null,
+) : Parcelable {}
