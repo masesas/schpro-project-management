@@ -29,7 +29,7 @@ class DashboardFragment :
     private val taskList = mutableListOf<Task>()
 
     private val taskDialog: TaskDialog by lazy {
-        TaskDialog(requireContext(), userSession).apply {
+        TaskDialog(requireContext(), parentFragmentManager, userSession).apply {
             hideChooseAnggota()
             disabledFields()
             setButtonAction("Mark as Done") { _, task ->

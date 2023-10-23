@@ -71,8 +71,8 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/rubik_regular"
                     android:layout_marginStart="5dp"
+                    android:fontFamily="@font/rubik_regular"
                     android:text="Anggota"
                     android:textStyle="bold" />
 
@@ -126,7 +126,9 @@
                     android:id="@+id/et_tenggat_task"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@color/underline" />
+                    android:backgroundTint="@color/underline"
+                    android:cursorVisible="false"
+                    android:focusable="false" />
 
             </com.google.android.material.textfield.TextInputLayout>
 

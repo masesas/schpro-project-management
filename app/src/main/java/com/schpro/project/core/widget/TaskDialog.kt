@@ -5,10 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
+import androidx.fragment.app.FragmentManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.schpro.project.R
 import com.schpro.project.core.base.BaseRecyclerViewAdapter
+import com.schpro.project.core.extension.datePicker
 import com.schpro.project.core.extension.toast
 import com.schpro.project.core.widget.adapter.DropdownModel
 import com.schpro.project.data.models.Roles
@@ -16,9 +18,12 @@ import com.schpro.project.data.models.Status
 import com.schpro.project.data.models.Task
 import com.schpro.project.data.models.User
 import com.schpro.project.databinding.DialogTaskBinding
+import java.text.SimpleDateFormat
+import java.util.Locale
 
 class TaskDialog constructor(
     private val context: Context,
+    private val fragmentManager: FragmentManager,
     private val userSession: User? = null
 ) {
 
@@ -27,13 +32,13 @@ class TaskDialog constructor(
     private var selectedAnggota = mutableListOf<User>()
     private var loadedTask = Task()
 
+    private val simpleDateFormat by lazy { SimpleDateFormat("dd/MM/yyyy", Locale.getDefault()) }
     private val binding: DialogTaskBinding by lazy {
         DialogTaskBinding.inflate(LayoutInflater.from(context))
     }
 
     private val selectedAnggotaAdapter by lazy {
-        object : BaseRecyclerViewAdapter<User>(
-            R.layout.item_anggota,
+        object : BaseRecyclerViewAdapter<User>(R.layout.item_anggota,
             bind = { item, holder, count, adapter ->
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_username).text = item.username
@@ -52,8 +57,7 @@ class TaskDialog constructor(
                         adapter.notifyDataSetChanged()
                     }
                 }
-            }
-        ) {}.apply {
+            }) {}.apply {
             submitList(selectedAnggota)
         }
     }
@@ -74,8 +78,7 @@ class TaskDialog constructor(
 
         binding.chooseMember.setOnClickListener {
             DropdownBottomSheet(
-                context,
-                dropdownMember
+                context, dropdownMember
             ) {
                 if (!selectedAnggota.contains(it)) {
                     selectedAnggota.add(it)
@@ -84,10 +87,11 @@ class TaskDialog constructor(
                 } else {
                     context.toast("Anggota telah ditambahkan")
                 }
-            }
-                .setTitle("Pilih Anggota")
-                .showActionButton(false)
-                .show()
+            }.setTitle("Pilih Anggota").showActionButton(false).show()
+        }
+
+        binding.etTenggatTask.setOnClickListener {
+            binding.etTenggatTask.datePicker(fragmentManager)
         }
 
         rvAnggota()
@@ -114,21 +118,14 @@ class TaskDialog constructor(
         selectedAnggotaAdapter.submitList(selectedAnggota)
         selectedAnggotaAdapter.notifyDataSetChanged()
 
-        binding.btnDone.visibility =
-            if (task.status == Status.Done)
-                View.GONE
-            else
-                View.VISIBLE
+        binding.btnDone.visibility = if (task.status == Status.Done) View.GONE
+        else View.VISIBLE
 
     }
 
     fun setAnggotaList(anggota: List<User>) {
         dropdownMember = anggota.map {
-            DropdownModel(
-                it,
-                valueBuilder = { user -> user.username },
-                subTitleBuilder = { "" }
-            )
+            DropdownModel(it, valueBuilder = { user -> user.username }, subTitleBuilder = { "" })
         }.toMutableList()
     }
 
@@ -147,11 +144,9 @@ class TaskDialog constructor(
     fun setButtonAction(buttonText: String, action: (AlertDialog, Task) -> Unit) {
         binding.btnDone.text = buttonText
         binding.btnDone.setOnClickListener {
-            if (
-                binding.etTitle.text.toString().isEmpty()
-                || binding.etDeskripsi.text.toString().isEmpty()
-                || binding.etTenggatTask.text.toString().isEmpty()
-                || selectedAnggota.isEmpty()
+            if (binding.etTitle.text.toString().isEmpty() || binding.etDeskripsi.text.toString()
+                    .isEmpty() || binding.etTenggatTask.text.toString()
+                    .isEmpty() || selectedAnggota.isEmpty()
             ) {
                 context.toast("Lengkapi semua field")
                 return@setOnClickListener

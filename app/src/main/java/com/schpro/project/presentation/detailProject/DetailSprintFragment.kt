@@ -32,7 +32,7 @@ class DetailSprintFragment :
     private val taskDoneList = mutableListOf<Task>()
 
     private val taskDialog: TaskDialog by lazy {
-        TaskDialog(requireContext(), userSession).apply {
+        TaskDialog(requireContext(), parentFragmentManager, userSession).apply {
             if (userSession.role == Roles.ProjectManager) {
                 setAnggotaList(args.members.toList())
             } else {

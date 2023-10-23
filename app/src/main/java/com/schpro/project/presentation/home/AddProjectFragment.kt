@@ -7,6 +7,7 @@ import com.schpro.project.R
 import com.schpro.project.core.base.BaseFragment
 import com.schpro.project.core.base.BaseRecyclerViewAdapter
 import com.schpro.project.core.base.UiState
+import com.schpro.project.core.extension.datePicker
 import com.schpro.project.core.extension.toast
 import com.schpro.project.core.widget.DropdownBottomSheet
 import com.schpro.project.core.widget.adapter.DropdownModel
@@ -128,6 +129,10 @@ class AddProjectFragment :
 
                 viewModel.saveProject(projectParams)
             }
+        }
+
+        binding.etDueDate.setOnClickListener {
+            binding.etDueDate.datePicker(parentFragmentManager)
         }
 
         rvSelectedAnggota()
