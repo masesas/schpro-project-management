@@ -90,17 +90,18 @@ class TaskRepositoryImpl(
     }
 
     override suspend fun getTasksCount(sprintId: String?, user: User?) = callbackFlow {
-        val document = database.collection(FireStoreCollection.TASK)
+        var document = database
+            .collection(FireStoreCollection.TASK)
+            .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
 
         if (sprintId != null) {
-            document.whereEqualTo(FireStoreFields.SPRINT_ID, sprintId)
+           document = document.whereEqualTo(FireStoreFields.SPRINT_ID, sprintId)
         }
         if (user != null) {
-            document.whereArrayContains(FireStoreFields.MEMBERS, user)
+            document = document.whereArrayContains(FireStoreFields.MEMBERS, user)
         }
 
         val snapshotListener = document
-            .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
             .addSnapshotListener { snapshot, e ->
                 val result = snapshot?.toObjects(Task::class.java)
                 val dashboard = Dashboard()

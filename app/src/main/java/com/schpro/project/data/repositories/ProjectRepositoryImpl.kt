@@ -18,19 +18,20 @@ class ProjectRepositoryImpl(
     private val database: FirebaseFirestore
 ) : ProjectRepository {
     override suspend fun getProjects(user: User) = callbackFlow {
-        val document = database.collection(FireStoreCollection.PROJECT)
+        var document = database.collection(FireStoreCollection.PROJECT)
+            .orderBy("createdDate", Query.Direction.DESCENDING)
 
-        when (user.role) {
+        document = when (user.role) {
             Roles.ProjectTeam -> {
                 document.whereArrayContains(FireStoreFields.MEMBERS, user)
             }
 
             Roles.ProjectManager -> {
-                document.whereEqualTo(FireStoreFields.USER_ID, user.id)
+                document.whereEqualTo(FireStoreFields.BY_USER, user.id)
             }
         }
 
-        val snapshotListener = document.orderBy("createdDate", Query.Direction.DESCENDING)
+        val snapshotListener = document
             .addSnapshotListener { snapshot, e ->
                 val result = if (snapshot != null) {
                     Resource.Success(snapshot.toObjects(Project::class.java))

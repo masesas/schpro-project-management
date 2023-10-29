@@ -22,7 +22,7 @@ class RegistrasiFragment :
     override fun initViews() {
         components()
         observer()
-        debugMode()
+        //debugMode()
         backPressed(true)
     }
 

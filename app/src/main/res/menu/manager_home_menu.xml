@@ -5,23 +5,23 @@
         android:id="@+id/fragment_dashboard"
         android:icon="@drawable/ic_home"
         android:title="@string/beranda"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/fragment_project"
         android:icon="@drawable/ic_my_project"
         android:title="@string/my_project"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/fragment_add_project"
         android:icon="@drawable/ic_add_project"
         android:title="@string/add_project"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 
     <item
         android:id="@+id/fragment_profile"
         android:icon="@drawable/ic_profile"
         android:title="@string/profile"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="always" />
 </menu>

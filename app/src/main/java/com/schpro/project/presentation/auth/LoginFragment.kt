@@ -17,7 +17,7 @@ class LoginFragment :
     override fun initViews() {
         components()
         observer()
-        debugMode()
+        //debugMode()
         backPressed(true)
     }
 
@@ -75,8 +75,8 @@ class LoginFragment :
 
     private fun debugMode() {
         if (BuildConfig.DEBUG) {
-            binding!!.etEmail.setText("khesa.oto@gmail.com")
-            binding!!.etPassword.setText("123456789")
+            binding.etEmail.setText("khesa.oto@gmail.com")
+            binding.etPassword.setText("123456789")
         }
     }
 }
