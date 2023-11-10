@@ -116,11 +116,12 @@ class DetailProjectFragment :
 
     override fun getViewModelClass() = DetailProjectViewModel::class.java
 
-    @SuppressLint("NotifyDataSetChanged")
+    @SuppressLint("NotifyDataSetChanged", "SetTextI18n")
     private fun observe() {
         viewModel.getSession { user ->
             viewModel.getSprintList(args.projectId)
             viewModel.getDetailProject(args.projectId)
+            viewModel.getProjectProgressByTask(args.projectId)
             userSession = user!!
         }
 
@@ -135,8 +136,6 @@ class DetailProjectFragment :
                         binding.tvTitle.text = data.title
                         binding.tvDesc.text = data.description
                         binding.tvDueDate.text = data.dueDate
-                        binding.progressProject.tvPercentage.text = "0%"
-                        binding.progressProject.progress.progress = 0
 
                         data.byUser?.let {
                             teams.add(0, it)
@@ -212,8 +211,14 @@ class DetailProjectFragment :
                 }
             }
         }
+
+        viewModel.projectProgress.observe(viewLifecycleOwner) { state ->
+            binding.progressProject.tvPercentage.text = "$state %"
+            binding.progressProject.progress.progress = state
+        }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun components() {
         binding.rvTeam.apply {
             layoutManager = LinearLayoutManager(requireContext())

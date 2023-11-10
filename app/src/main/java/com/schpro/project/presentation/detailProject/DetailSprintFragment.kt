@@ -10,6 +10,7 @@ import com.schpro.project.R
 import com.schpro.project.core.base.BaseFragment
 import com.schpro.project.core.base.BaseRecyclerViewAdapter
 import com.schpro.project.core.base.UiState
+import com.schpro.project.core.extension.showPopupMenuMoveTask
 import com.schpro.project.core.extension.toast
 import com.schpro.project.core.widget.TaskDialog
 import com.schpro.project.data.models.Roles
@@ -60,9 +61,9 @@ class DetailSprintFragment :
                     findViewById<TextView>(R.id.tv_title).text = item.title
                     findViewById<TextView>(R.id.tv_due_date).text = item.tenggatTask
                     findViewById<View>(R.id.btn_move_task).setOnClickListener {
-                        if (item.status == Status.Todo || item.status == Status.OnGoing) {
+                        findViewById<View>(R.id.btn_move_task).showPopupMenuMoveTask(item.status) { selected ->
                             item.apply {
-                                status = Status.OnGoing
+                                status = selected
                             }
                             viewModel.updateTask(item)
                         }
@@ -80,9 +81,9 @@ class DetailSprintFragment :
                     findViewById<TextView>(R.id.tv_title).text = item.title
                     findViewById<TextView>(R.id.tv_due_date).text = item.tenggatTask
                     findViewById<View>(R.id.btn_move_task).setOnClickListener {
-                        if (item.status == Status.Todo || item.status == Status.OnGoing) {
+                        findViewById<View>(R.id.btn_move_task).showPopupMenuMoveTask(item.status) { selected ->
                             item.apply {
-                                status = Status.Done
+                                status = selected
                             }
                             viewModel.updateTask(item)
                         }
@@ -99,7 +100,14 @@ class DetailSprintFragment :
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_title).text = item.title
                     findViewById<TextView>(R.id.tv_due_date).text = item.tenggatTask
-                    findViewById<View>(R.id.ly_btn_move_task).visibility = View.GONE
+                    findViewById<View>(R.id.btn_move_task).setOnClickListener {
+                        findViewById<View>(R.id.btn_move_task).showPopupMenuMoveTask(item.status) { selected ->
+                            item.apply {
+                                status = selected
+                            }
+                            viewModel.updateTask(item)
+                        }
+                    }
                 }
             }
         ) {}
@@ -143,6 +151,8 @@ class DetailSprintFragment :
                         binding.rvTaskTodo.visibility = View.VISIBLE
                         binding.rvTaskOnGoing.visibility = View.GONE
                         binding.rvTaskDone.visibility = View.GONE
+                        binding.btnAddTask.visibility = View.VISIBLE
+
                         viewModel.getTaskByStatus(args.sprint.id, Status.Todo)
                     }
 
@@ -151,6 +161,8 @@ class DetailSprintFragment :
                         binding.rvTaskTodo.visibility = View.GONE
                         binding.rvTaskOnGoing.visibility = View.VISIBLE
                         binding.rvTaskDone.visibility = View.GONE
+                        binding.btnAddTask.visibility = View.GONE
+
                         viewModel.getTaskByStatus(args.sprint.id, Status.OnGoing)
                     }
 
@@ -159,6 +171,8 @@ class DetailSprintFragment :
                         binding.rvTaskTodo.visibility = View.GONE
                         binding.rvTaskOnGoing.visibility = View.GONE
                         binding.rvTaskDone.visibility = View.VISIBLE
+                        binding.btnAddTask.visibility = View.GONE
+
                         viewModel.getTaskByStatus(args.sprint.id, Status.Done)
                     }
                 }
@@ -257,6 +271,7 @@ class DetailSprintFragment :
     }
 
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun emitTask(data: List<Task>) {
         binding.pbTask.visibility = View.GONE
         taskTodoList.clear()

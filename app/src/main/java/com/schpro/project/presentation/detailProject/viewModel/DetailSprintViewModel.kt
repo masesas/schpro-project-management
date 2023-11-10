@@ -86,7 +86,7 @@ class DetailSprintViewModel @Inject constructor(
 
     fun getCountTask(sprintId: String) {
         viewModelScope.launch {
-            taskRepository.getTasksCount(sprintId, null).collect { response ->
+            taskRepository.getTasksCount(null, sprintId, null).collect { response ->
                 when (response) {
                     is Resource.Success -> {
                         val data = response.data

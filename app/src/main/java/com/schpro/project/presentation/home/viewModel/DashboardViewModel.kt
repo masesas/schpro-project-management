@@ -9,10 +9,13 @@ import com.schpro.project.core.base.SingleLiveData
 import com.schpro.project.core.base.UiState
 import com.schpro.project.core.extension.toData
 import com.schpro.project.core.extension.toState
+import com.schpro.project.data.models.DONE_WEIGHT_PERCENT
 import com.schpro.project.data.models.Dashboard
+import com.schpro.project.data.models.ONGOING_WEIGHT_PERCENT
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Roles
 import com.schpro.project.data.models.Status
+import com.schpro.project.data.models.TODO_WEIGHT_PERCENT
 import com.schpro.project.data.models.Task
 import com.schpro.project.data.models.User
 import com.schpro.project.data.repositories.ProjectRepository
@@ -74,14 +77,14 @@ class DashboardViewModel @Inject constructor(
     private fun getProject() {
         viewModelScope.launch {
             projectRepository.getProjects(userSession).collect { response ->
-                _projectListState.value = response.toData()
+                _projectListState.value = response.toData() ?: arrayListOf()
             }
         }
     }
 
     private fun getCountUserTeam() {
         viewModelScope.launch {
-            taskRepository.getTasksCount(null, userSession).collect { response ->
+            taskRepository.getTasksCount(null, null, userSession).collect { response ->
                 when (response) {
                     is Resource.Success -> {
                         val data = response.data
@@ -115,6 +118,32 @@ class DashboardViewModel @Inject constructor(
             taskRepository.updateTask(task).run {
                 _saveTaskState.value = toState("Task berhasil di update")
                 //getTaskByStatus(task.sprintId, task.status)
+            }
+        }
+    }
+
+    fun getProjectProgressByTask(projectId: String, result: (Dashboard, Int) -> Unit) {
+        viewModelScope.launch {
+            taskRepository.getTasksCount(projectId, null, null).collect { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        // toodo = 0%, ongoing = 50%, done = 100%
+                        val counting = response.data
+
+                        val todo = counting.totalTaskTodo * TODO_WEIGHT_PERCENT
+                        val onGoing = counting.totalTaskOnGoing * ONGOING_WEIGHT_PERCENT
+                        val done = counting.totalTaskDone * DONE_WEIGHT_PERCENT
+                        var progress =
+                            (todo + onGoing + done) / (counting.totalTaskTodo + counting.totalTaskOnGoing + counting.totalTaskDone)
+                        if (progress > 100) {
+                            progress = 100
+                        }
+
+                        result.invoke(counting, progress)
+                    }
+
+                    is Resource.Failure -> {}
+                }
             }
         }
     }

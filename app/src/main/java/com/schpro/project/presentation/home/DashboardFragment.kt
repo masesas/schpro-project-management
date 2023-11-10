@@ -60,13 +60,37 @@ class DashboardFragment :
     }
 
     private val projectAdapter: BaseRecyclerViewAdapter<Project> by lazy {
+        @SuppressLint("SetTextI18n")
         object : BaseRecyclerViewAdapter<Project>(
             R.layout.item_project_dashboard,
-            bind = { item, holder, _, _ ->
+            bind = { item, holder, itemCount, _ ->
                 with(holder.itemView) {
                     findViewById<TextView>(R.id.tv_title).text = item.title
-                    findViewById<LinearProgressIndicator>(R.id.progress).progress = 0
-                    findViewById<TextView>(R.id.tv_percentage).text = "0%"
+                    viewModel.getProjectProgressByTask(item.id) { total, progress ->
+                        if (progress < 100) {
+                            binding.containerCount.tvCount2.text =
+                                (binding.containerCount.tvCount2.text.toString()
+                                    .toInt() + 1).toString()
+                            if (binding.containerCount.tvCount2.text.toString()
+                                    .toInt() > itemCount
+                            ) {
+                                binding.containerCount.tvCount2.text = itemCount.toString()
+                            }
+                        } else if (progress >= 100) {
+                            binding.containerCount.tvCount3.text =
+                                (binding.containerCount.tvCount3.text.toString()
+                                    .toInt() + 1).toString()
+                            if (binding.containerCount.tvCount3.text.toString()
+                                    .toInt() > itemCount
+                            ) {
+                                binding.containerCount.tvCount3.text = itemCount.toString()
+                            }
+                        }
+
+
+                        findViewById<LinearProgressIndicator>(R.id.progress).progress = progress
+                        findViewById<TextView>(R.id.tv_percentage).text = "$progress %"
+                    }
                 }
             }
         ) {}

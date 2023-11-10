@@ -9,9 +9,9 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.annotation.ColorInt
-import androidx.annotation.IntegerRes
 import androidx.core.content.res.ResourcesCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.graphics.drawable.DrawableCompat
@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.textfield.TextInputLayout
 import com.schpro.project.R
 import com.schpro.project.core.HARUS_ISI
+import com.schpro.project.data.models.Status
 
 fun View.hide() {
     visibility = View.GONE
@@ -94,4 +95,25 @@ fun Menu.setIconColor(context: Context, menuId: Int, color: Int = R.color.white)
         )
         DrawableCompat.setTintList(icon, colorSelector)
     }
+}
+
+fun View.showPopupMenuMoveTask(currentStatus: Status, onClick: (status: Status) -> Unit) {
+    PopupMenu(context, this).apply {
+        if (currentStatus == Status.Todo) {
+            menu.add(Status.OnGoing.optionalName)
+            menu.add(Status.Done.optionalName)
+        } else if (currentStatus == Status.OnGoing) {
+            menu.add(Status.Todo.optionalName)
+            menu.add(Status.Done.optionalName)
+        } else if (currentStatus == Status.Done) {
+            menu.add(Status.Todo.optionalName)
+            menu.add(Status.OnGoing.optionalName)
+        }
+
+        setOnMenuItemClickListener { item ->
+            onClick.invoke(Status.fromString(item.title.toString()))
+            Toast.makeText(context, "You Clicked : " + item.title, Toast.LENGTH_SHORT).show()
+            true
+        }
+    }.show()
 }

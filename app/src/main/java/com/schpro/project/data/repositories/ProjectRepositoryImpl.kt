@@ -8,7 +8,6 @@ import com.schpro.project.core.base.Resource
 import com.schpro.project.data.models.Dashboard
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Roles
-import com.schpro.project.data.models.Status
 import com.schpro.project.data.models.User
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.callbackFlow
@@ -90,22 +89,9 @@ class ProjectRepositoryImpl(
 
         val snapshotListener = document
             .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
-            .addSnapshotListener { snapshot, e ->
+            .addSnapshotListener { snapshot, _ ->
                 val result = snapshot?.toObjects(Project::class.java)
-                val dashboard = Dashboard()
-                if (result != null) {
-                    dashboard.totalProject = result.size
-                    for (data in result) {
-                        when (data.status) {
-                            Status.OnGoing -> {
-                                dashboard.totalProjectOnGoing += 1
-                            }
-
-                            Status.Complete -> dashboard.totalProjectComplete += 1
-                            else -> {}
-                        }
-                    }
-                }
+                val dashboard = Dashboard(totalProject = result?.size ?: 0)
                 trySend(Resource.Success(dashboard))
             }
 

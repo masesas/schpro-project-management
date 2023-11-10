@@ -4,13 +4,18 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.schpro.project.core.base.BaseViewModel
+import com.schpro.project.core.base.Resource
 import com.schpro.project.core.base.SingleLiveData
 import com.schpro.project.core.base.UiState
 import com.schpro.project.core.extension.toState
+import com.schpro.project.data.models.DONE_WEIGHT_PERCENT
+import com.schpro.project.data.models.ONGOING_WEIGHT_PERCENT
 import com.schpro.project.data.models.Project
 import com.schpro.project.data.models.Sprint
+import com.schpro.project.data.models.TODO_WEIGHT_PERCENT
 import com.schpro.project.data.repositories.ProjectRepository
 import com.schpro.project.data.repositories.SprintRepository
+import com.schpro.project.data.repositories.TaskRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -18,12 +23,16 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailProjectViewModel @Inject constructor(
     private val projectRepository: ProjectRepository,
-    private val sprintRepository: SprintRepository
+    private val sprintRepository: SprintRepository,
+    private val taskRepository: TaskRepository
 ) : BaseViewModel() {
+
+
     private val _detailProject = MutableLiveData<UiState<Project>>()
     private val _saveSprint = SingleLiveData<UiState<String>>()
     private val _sprintList = MutableLiveData<UiState<List<Sprint>>>()
     private val _deleteSprint = SingleLiveData<UiState<String>>()
+    private val _projectProgress = MutableLiveData<Int>()
 
     val detailProject: LiveData<UiState<Project>?>
         get() = _detailProject
@@ -36,6 +45,9 @@ class DetailProjectViewModel @Inject constructor(
 
     val deleteSprint: LiveData<UiState<String>?>
         get() = _deleteSprint
+
+    val projectProgress: LiveData<Int>
+        get() = _projectProgress
 
     fun getDetailProject(id: String) {
         _detailProject.value = UiState.Loading
@@ -79,6 +91,33 @@ class DetailProjectViewModel @Inject constructor(
         viewModelScope.launch {
             sprintRepository.deleteSprint(sprint.id).run {
                 _deleteSprint.value = this.toState("Sprint di hapus")
+            }
+        }
+    }
+
+    fun getProjectProgressByTask(projectId: String) {
+        viewModelScope.launch {
+            taskRepository.getTasksCount(projectId, null, null).collect { response ->
+                when (response) {
+                    is Resource.Success -> {
+                        // toodo = 0%, ongoing = 50%, done = 100%
+                        val counting = response.data
+                        val totalAll =
+                            counting.totalTaskTodo + counting.totalTaskOnGoing + counting.totalTaskDone
+
+                        val todo = counting.totalTaskTodo * TODO_WEIGHT_PERCENT
+                        val onGoing = counting.totalTaskOnGoing * ONGOING_WEIGHT_PERCENT
+                        val done = counting.totalTaskDone * 1 * DONE_WEIGHT_PERCENT
+                        var progress =
+                            (todo + onGoing + done) / (counting.totalTaskTodo + counting.totalTaskOnGoing + counting.totalTaskDone)
+                        if (progress > 100) {
+                            progress = 100
+                        }
+                        _projectProgress.value = progress
+                    }
+
+                    is Resource.Failure -> {}
+                }
             }
         }
     }

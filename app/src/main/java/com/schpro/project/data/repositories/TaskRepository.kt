@@ -8,7 +8,11 @@ import com.schpro.project.data.models.User
 import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
-    suspend fun getTasks(sprintId: String?, status: Status? = null, user: User? = null): Flow<Resource<List<Task>>>
+    suspend fun getTasks(
+        sprintId: String?,
+        status: Status? = null,
+        user: User? = null
+    ): Flow<Resource<List<Task>>>
 
     suspend fun getTaskById(id: String): Resource<Task>
 
@@ -18,5 +22,11 @@ interface TaskRepository {
     // will update sprint collection
     suspend fun updateTask(task: Task): Resource<Boolean>
 
-    suspend fun getTasksCount(sprintId: String?, user: User?): Flow<Resource<Dashboard>>
+    suspend fun getTasksCount(
+        projectId: String?,
+        sprintId: String?,
+        user: User?
+    ): Flow<Resource<Dashboard>>
+
+    suspend fun getTaskCount(projectId: String?, result: (Dashboard) -> Unit)
 }

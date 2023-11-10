@@ -89,46 +89,82 @@ class TaskRepositoryImpl(
         Resource.Failure(e.message)
     }
 
-    override suspend fun getTasksCount(sprintId: String?, user: User?) = callbackFlow {
-        var document = database
-            .collection(FireStoreCollection.TASK)
-            .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
+    override suspend fun getTasksCount(projectId: String?, sprintId: String?, user: User?) =
+        callbackFlow {
+            var document = database
+                .collection(FireStoreCollection.TASK)
+                .orderBy(FireStoreFields.CREATED_DATE, Query.Direction.DESCENDING)
 
-        if (sprintId != null) {
-           document = document.whereEqualTo(FireStoreFields.SPRINT_ID, sprintId)
-        }
-        if (user != null) {
-            document = document.whereArrayContains(FireStoreFields.MEMBERS, user)
-        }
-
-        val snapshotListener = document
-            .addSnapshotListener { snapshot, e ->
-                val result = snapshot?.toObjects(Task::class.java)
-                val dashboard = Dashboard()
-                if (result != null) {
-                    for (data in result) {
-                        when (data.status) {
-                            Status.Todo -> {
-                                dashboard.totalTaskTodo += 1
-                            }
-
-                            Status.OnGoing -> {
-                                dashboard.totalTaskOnGoing += 1
-                            }
-
-                            Status.Done -> {
-                                dashboard.totalTaskDone += 1
-                            }
-
-                            Status.Complete -> {}
-                        }
-                    }
-                }
-                trySend(Resource.Success(dashboard))
+            if (projectId != null) {
+                document = document.whereEqualTo(FireStoreFields.PROJECT_ID, projectId)
+            }
+            if (sprintId != null) {
+                document = document.whereEqualTo(FireStoreFields.SPRINT_ID, sprintId)
+            }
+            if (user != null) {
+                document = document.whereArrayContains(FireStoreFields.MEMBERS, user)
             }
 
-        awaitClose {
-            snapshotListener.remove()
+            val snapshotListener = document
+                .addSnapshotListener { snapshot, e ->
+                    val result = snapshot?.toObjects(Task::class.java)
+                    val dashboard = Dashboard()
+                    if (result != null) {
+                        for (data in result) {
+                            when (data.status) {
+                                Status.Todo -> {
+                                    dashboard.totalTaskTodo += 1
+                                }
+
+                                Status.OnGoing -> {
+                                    dashboard.totalTaskOnGoing += 1
+                                }
+
+                                Status.Done -> {
+                                    dashboard.totalTaskDone += 1
+                                }
+
+                                Status.Complete -> {}
+                            }
+                        }
+                    }
+                    trySend(Resource.Success(dashboard))
+                }
+
+            awaitClose {
+                snapshotListener.remove()
+            }
         }
+
+    override suspend fun getTaskCount(projectId: String?, result: (Dashboard) -> Unit) {
+        val taskDoc = database
+            .collection(FireStoreCollection.TASK)
+            .whereEqualTo(FireStoreFields.PROJECT_ID, projectId)
+            .get()
+            .await()
+
+        val tasks = taskDoc.toObjects(Task::class.java)
+        val dashboard = Dashboard()
+        if (tasks.isNotEmpty()) {
+            for (data in tasks) {
+                when (data.status) {
+                    Status.Todo -> {
+                        dashboard.totalTaskTodo += 1
+                    }
+
+                    Status.OnGoing -> {
+                        dashboard.totalTaskOnGoing += 1
+                    }
+
+                    Status.Done -> {
+                        dashboard.totalTaskDone += 1
+                    }
+
+                    Status.Complete -> {}
+                }
+            }
+        }
+
+        result.invoke(dashboard)
     }
 }

@@ -5,3 +5,4 @@
 - project byUser.id Ascending createdDate Descending __name__ Descending Collection
 - task sprintId Ascending createdDate Descending __name__ Descending Collection
 - project members Arrays createdDate Descending __name__ Descending Collection
+- task projectId Ascending createdDate Descending __name__ Descending	Collection

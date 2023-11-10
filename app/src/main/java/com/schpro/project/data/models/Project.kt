@@ -5,6 +5,13 @@ import com.google.firebase.firestore.ServerTimestamp
 import kotlinx.parcelize.Parcelize
 import java.util.Date
 
+/**
+ * value as percentage
+ */
+const val TODO_WEIGHT_PERCENT = 0
+const val ONGOING_WEIGHT_PERCENT = 50
+const val DONE_WEIGHT_PERCENT = 100
+
 @Parcelize
 data class Project(
     var id: String = "",
@@ -29,5 +36,20 @@ enum class Status(val optionalName: String) {
     Todo("To do"),
     OnGoing("On Going"),
     Done("Done"),
-    Complete("Complete")
+    Complete("Complete");
+
+    companion object {
+        fun fromString(value: String): Status {
+            return when (value) {
+                "To do", "Todo" -> Todo
+
+                "On Going", "OnGoing" -> OnGoing
+
+                "Done" -> Done
+
+                else -> Status.Todo
+            }
+
+        }
+    }
 }
