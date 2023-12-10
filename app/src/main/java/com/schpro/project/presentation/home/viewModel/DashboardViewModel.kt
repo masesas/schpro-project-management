@@ -133,8 +133,16 @@ class DashboardViewModel @Inject constructor(
                         val todo = counting.totalTaskTodo * TODO_WEIGHT_PERCENT
                         val onGoing = counting.totalTaskOnGoing * ONGOING_WEIGHT_PERCENT
                         val done = counting.totalTaskDone * DONE_WEIGHT_PERCENT
-                        var progress =
-                            (todo + onGoing + done) / (counting.totalTaskTodo + counting.totalTaskOnGoing + counting.totalTaskDone)
+
+                        val totalWeight = todo + onGoing + done
+                        val totalCount =
+                            counting.totalTaskTodo + counting.totalTaskOnGoing + counting.totalTaskDone;
+
+                        var progress = 0;
+                        if (totalWeight > 0 && totalCount > 0) {
+                            progress = totalWeight / totalCount
+                        }
+
                         if (progress > 100) {
                             progress = 100
                         }

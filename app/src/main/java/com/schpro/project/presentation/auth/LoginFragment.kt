@@ -61,7 +61,7 @@ class LoginFragment :
     }
 
     private fun validation(): Boolean {
-        val binding = binding!!
+        val binding = binding
         if (
             binding.etEmail.text.isNullOrEmpty()
             || binding.etPassword.text.isNullOrEmpty()
